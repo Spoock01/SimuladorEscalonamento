@@ -1,0 +1,30 @@
+# depslib dependency file v1.0
+1523133725 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\leitordearquivo.cpp
+	<iostream>
+
+1523158394 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+	<cstring>
+	<algorithm>
+	"Utilidades.h"
+	"Entrada.h"
+
+1523133801 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\leitordearquivo.h
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	"Utilidades.h"
+
+1523154292 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\utilidades.h
+
+1523156017 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\utilidades.cpp
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+
+1523115888 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\entrada.cpp
+
+1523155915 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\entrada.h
+
