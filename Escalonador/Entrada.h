@@ -16,6 +16,7 @@ public:
     int getTempoCpu();
     void setTempoCpu(int);
     void resetTempoCpu();
+    void setTempoChegada(int);
 };
 
 Entrada::Entrada(int tempoChegada, int tempoCpu){
@@ -35,6 +36,10 @@ int Entrada::getTempoCpu(){
 
 void Entrada::setTempoCpu(int newTime){
     tempoCpuAux = newTime;
+}
+
+void Entrada::setTempoChegada(int time){
+    tempoChegada = time;
 }
 
 void Entrada::resetTempoCpu(){
