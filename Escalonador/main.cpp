@@ -305,8 +305,8 @@ int main()
 
     inFile.close();
     /*
-        ORDENANDO A LISTA DE ELEMENTOS DE ACORDO
-        COM O TEMPO DE CHEGADA DOS ELEMENTOS
+        ORDENANDO A LISTA DE PROCESSOSS DE ACORDO
+        COM O TEMPO DE CHEGADA DOS PROCESSOS
     */
     sort(lista.begin(), lista.end(), ordenaChegada);
     lista2 = lista;
