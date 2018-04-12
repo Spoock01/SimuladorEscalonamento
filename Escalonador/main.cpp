@@ -5,13 +5,14 @@
 #include <algorithm>
 #include "Utilidades.h"
 #include "Entrada.h"
+#define PRIMEIRO_ELEMENTO 0
 
 
 //Compilar: g++ -o main.exe Entrada.h Utilidades.h Utllidades.cpp main.cpp
 
 using namespace std;
 
-const string PATH = "arquivo1.txt";
+const string PATH = "arquivo.txt";
 
 void showVector(vector<Entrada> entradas){
 
@@ -28,7 +29,11 @@ bool ordenaChegada (Entrada &e1, Entrada &e2){
     return e1.getTempoChegada() < e2.getTempoChegada();
 }
 
-bool ordenaTempoCpu(Entrada &e1, Entrada &e2){
+bool ordenaCpu (Entrada &e1, Entrada &e2){
+    return e1.getTempoCpu() < e2.getTempoCpu();
+}
+
+bool ordenaTempoCpuChegada(Entrada &e1, Entrada &e2){
     return (e1.getTempoChegada() == e2.getTempoChegada()) && (e1.getTempoCpu() < e2.getTempoCpu());
 }
 
@@ -136,6 +141,116 @@ void fcfs(vector<Entrada> lista){
 
 }
 
+void sjf(vector<Entrada>lista){
+
+    vector<Entrada> listaProntos;
+    int i, tempoDecorrido, somaEspera = 0, somaResposta = 0, somaRetorno = 0, qntInseridos, qntElementos = (int) lista.size();
+    bool finish = false, firstExec = true;
+
+    // VERIFICANDO O TEMPO DE CHEGADA DO PRIMEIRO ELEMENTO
+    tempoDecorrido = lista[PRIMEIRO_ELEMENTO].getTempoChegada();
+
+    /*
+        FUNCIONAMENTO DO ALGORITMO
+
+        FAZER VARIAVEL 'qntInseridos' SER IGUAL A 0
+        FAZER VARIAVEL 'finish' SER IGUAL A TRUE
+
+        ENQUANTO TODOS OS PROCESSOS NAO TIVEREM SIDO ESCUTADOS,
+        O LAÇO CONTINUARA. VARIAVEL 'finish' FAZ ESSE CONTROLE.
+
+    */
+    while(true){
+        qntInseridos = 0;
+        finish = true;
+
+        /*
+            LAÇO RESPONSAVEL POR VERIFICAR SE OS PROCESSOS
+            DEVEM SER MOVIDOS PARA A FILA DE PRONTOS.
+
+            'qntInseridos' FAZ O CONTROLE DE QUANTOS PROCESSOS
+            FORAM MOVIDOS, PARA OS MESMOS SEREM EXCLUIDOS DA
+            FILA DE PROCESSOS.
+
+        */
+
+        for(i = 0; i < (int) lista.size(); i++){
+            Entrada aux = lista.at(i);
+
+            if(aux.getTempoChegada() <= tempoDecorrido){
+                listaProntos.push_back(aux);
+                qntInseridos++;
+            }
+            else
+                break;
+        }
+
+        lista.erase(lista.begin(), lista.begin() + qntInseridos);
+
+        /*
+            NA PRIMEIRA EXECUCAO DE PROCESSO, A LISTA DE PRONTOS SERA ORDENADA
+            TANTO PELO TEMPO DE CHEGADA QUANTO PELO TEMPO DE CPU.
+
+            NAS PROXIMAS EXECUCOES, A LISTA DE PRONTOS SERA ORDENADA APENAS
+            PELO TEMPO DE CPU DOS PROCESSOS EXISTENTES.
+        */
+
+
+        if(firstExec){
+            sort(listaProntos.begin(), listaProntos.end(), ordenaTempoCpuChegada);
+            firstExec = false;
+        }
+        else
+            sort(listaProntos.begin(), listaProntos.end(), ordenaCpu);
+
+
+        for(i = 0; i < (int) listaProntos.size(); i++){
+
+            if(!listaProntos[i].getExec()){
+                listaProntos[i].setTempoExecucao(tempoDecorrido);
+                listaProntos[i].setExec(true);
+                tempoDecorrido = tempoDecorrido + listaProntos[i].getTempoCpu();
+                finish = false;
+                break;
+            }
+
+        }
+
+        /*
+            CASO NENHUM PROCESSO FOI EXECUTADO E A LISTA DE PROCESSOS
+            NÃO POSSUI A MESMA QUANTIDADE DE PROCESSOS QUE FORAM
+            INSERIDOS NA LISTA DE PRONTOS, O TEMPO SERA INCREMENTADO
+            ATE CHEGAR A VEZ DO PROXIMO PROCESSO IR PARA A FILA
+            DE PRONTOS.
+        */
+        if(finish == true && (int) listaProntos.size() != qntElementos)
+            tempoDecorrido++;
+
+        /*
+            CASO A LISTA DE PROCESSOS TENHA A MESMA QUANTIDADE DA LISTA
+            DE PRONTOS E TODOS OS PROCESSOS JA FORAM EXECUTADOS, ENTAO
+            O ALGORITMO TERMINOU.
+        */
+        if (listaProntos.size() == qntElementos && finish == true)
+            break;
+
+    }
+
+    for(i = 0; i < (int) listaProntos.size(); i++){
+        somaEspera += listaProntos[i].getTempoEsperaRespostaSJF();
+        somaRetorno += listaProntos[i].getTempoRetorno();
+        somaResposta += listaProntos[i].getTempoEsperaRespostaSJF();
+
+    }
+
+    int size = (int) listaProntos.size();
+
+    cout << "SJF " << (double) somaRetorno  / size
+         << " "    << (double) somaResposta / size
+         << " "    << (double) somaEspera   / size << endl;
+
+
+}
 
 int main()
 {
@@ -163,15 +278,16 @@ int main()
         COM O TEMPO DE CHEGADA DOS ELEMENTOS
     */
     sort(lista.begin(), lista.end(), ordenaChegada);
+    lista2 = lista;
 
     /*
         EXECUTANDO OS PROCESSOS USANDO FCFS
     */
     fcfs(lista);
 
-    /*cout << "\n\nDepois de ordenar tempo cpu:\n\n";
-    sort(lista.begin(), lista.end(), ordenaTempoCpu);
-    showVector(lista);*/
+    sort(lista2.begin(), lista2.end(), ordenaTempoCpuChegada);
+
+    sjf(lista2);
 
     return 0;
 }

@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1523543781 source:c:\users\joaov\documents\github\simuladorescalonamento\testing erase vector\main.cpp
+	<iostream>
+	<vector>
+
