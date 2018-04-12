@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const string PATH = "arquivo.txt";
+const string PATH = "arquivo2.txt";
 
 void showVector(vector<Entrada> entradas){
 
@@ -39,9 +39,8 @@ bool ordenaTempoCpuChegada(Entrada &e1, Entrada &e2){
 
 void fcfs(vector<Entrada> lista){
 
-    int i,somaEspera = 0, somaRetorno = 0, somaResposta = 0, tEspera;
+    int i,somaEspera = 0, somaRetorno = 0, somaResposta = 0, tempoDecorrido = 0;
     double resultados[3];
-    vector<int> tempoExecucao;
 
     /*
                             TEMPO DE EXECUCAO (FCFS)
@@ -57,11 +56,20 @@ void fcfs(vector<Entrada> lista){
         TEMPO_DE_EXECUCAO = TEMPO_CPU_PROCESSO_ANTERIOR + TEMPO_DE_EXECUCAO_PROCESSO_ANTERIOR
 
     */
+    tempoDecorrido = lista[0].getTempoChegada();
+    lista[0].setTempoExecucao(tempoDecorrido);
+    for(i = 1; i < (int) lista.size(); i++){
 
-    tempoExecucao.push_back(lista[0].getTempoChegada());
-    for(i = 1; i <= (int) lista.size(); i++)
-        tempoExecucao.push_back(lista[i-1].getTempoCpu() + tempoExecucao[i-1]);
+        tempoDecorrido += lista[i-1].getTempoCpu();
 
+        if(tempoDecorrido < lista[i].getTempoChegada())
+        do{
+            tempoDecorrido++;
+        }while(tempoDecorrido < lista[i].getTempoChegada());
+
+        lista[i].setTempoExecucao(tempoDecorrido);
+
+    }
 
     /*
                                 TEMPO DE RETORNO (FCFS)
@@ -76,7 +84,9 @@ void fcfs(vector<Entrada> lista){
     */
 
     for (i = 0; i < (int) lista.size(); i++)
-        somaRetorno = somaRetorno + (tempoExecucao[i+1] - lista.at(i).getTempoChegada());
+        somaRetorno = somaRetorno + lista[i].getTempoRetorno();
+
+
 
     /*
                                 TEMPO DE RESPOSTA (FCFS)
@@ -91,7 +101,7 @@ void fcfs(vector<Entrada> lista){
 
 
     for(i = 1; i < (int) lista.size(); i++)
-        somaResposta = somaResposta + (tempoExecucao[i] - lista[i].getTempoChegada());
+        somaResposta = somaResposta + lista.at(i).getTempoEsperaRespostaSJF();
 
 
     /*
@@ -111,12 +121,9 @@ void fcfs(vector<Entrada> lista){
 
     */
 
-    for(i = 1; i < (int) lista.size(); i++){
+    for(i = 1; i < (int) lista.size(); i++)
+        somaEspera = somaEspera + lista.at(i).getTempoEsperaRespostaSJF();
 
-        tEspera = (tempoExecucao.at(i) - lista.at(i).getTempoChegada());
-        somaEspera = somaEspera + tEspera;
-
-    }
 
     /*
         CALCULANDO OS VALORES MEDIOS DE: RETORNO, RESPOSTA, ESPERA
@@ -204,6 +211,17 @@ void sjf(vector<Entrada>lista){
             sort(listaProntos.begin(), listaProntos.end(), ordenaCpu);
 
 
+    /*
+        LAÇO RESPONSAVEL POR VERIFICAR SE UM PROCESSO JA FOI EXECUTADO.
+        CASO TENHA SIDO, IRA PROCURAR EM TODA A LISTA DE PRONTOS PARA
+        SABER SE TODOS OS PROCESSOS FORAM EXECUTADOS.
+        CASO NAO TENHA SIDO, O PROCESSO EH EXECUTADO, 'finish' EH
+        MUDADO PARA 'FALSE' E O LAÇO EH ENCERRADO PARA VERIFICAR SE ALGUM
+        PROCESSO CHEGOU ENQUANTO ESTE ESTAVA EM EXECUCAO.
+
+    */
+
+
         for(i = 0; i < (int) listaProntos.size(); i++){
 
             if(!listaProntos[i].getExec()){
@@ -223,7 +241,7 @@ void sjf(vector<Entrada>lista){
             ATE CHEGAR A VEZ DO PROXIMO PROCESSO IR PARA A FILA
             DE PRONTOS.
         */
-        if(finish == true && (int) listaProntos.size() != qntElementos)
+        if(finish && (int) listaProntos.size() != qntElementos)
             tempoDecorrido++;
 
         /*
@@ -231,10 +249,14 @@ void sjf(vector<Entrada>lista){
             DE PRONTOS E TODOS OS PROCESSOS JA FORAM EXECUTADOS, ENTAO
             O ALGORITMO TERMINOU.
         */
-        if (listaProntos.size() == qntElementos && finish == true)
+        if ((int)listaProntos.size() == qntElementos && finish)
             break;
 
     }
+
+    /*
+        CALCULANDO OS TEMPOS MEDIOS DE RETORNO, RESPOSTA E ESPERA
+    */
 
     for(i = 0; i < (int) listaProntos.size(); i++){
         somaEspera += listaProntos[i].getTempoEsperaRespostaSJF();
@@ -244,6 +266,14 @@ void sjf(vector<Entrada>lista){
     }
 
     int size = (int) listaProntos.size();
+
+    /*
+        EXIBINDO TEMPOS MEDIOS DE RETORNO, RESPOSTA E ESPERA NO SEGUINTE FORMATO:
+
+        SJF TEMPO_RETORNO_MEDIO TEMPO_RESPOSTA_MEDIO TEMPO_ESPERA_MEDIO
+
+        TODOS OS TEMPOS COM 1 CASA DECIMAL
+    */
 
     cout << "SJF " << (double) somaRetorno  / size
          << " "    << (double) somaResposta / size
@@ -273,6 +303,7 @@ int main()
         lista.push_back(*new Entrada(t1,t2));
     }
 
+    inFile.close();
     /*
         ORDENANDO A LISTA DE ELEMENTOS DE ACORDO
         COM O TEMPO DE CHEGADA DOS ELEMENTOS

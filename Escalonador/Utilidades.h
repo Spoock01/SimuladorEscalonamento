@@ -4,7 +4,6 @@
 
 
 void mostraErro(int erro);
-//FILE *isValid(char *path);
 
 
 #endif
