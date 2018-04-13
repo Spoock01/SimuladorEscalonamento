@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const string PATH = "arquivo2.txt";
+const string PATH = "arquivo1.txt";
 
 void showVector(vector<Entrada> entradas){
 
@@ -176,8 +176,8 @@ void sjf(vector<Entrada>lista){
             DEVEM SER MOVIDOS PARA A FILA DE PRONTOS.
 
             'qntInseridos' FAZ O CONTROLE DE QUANTOS PROCESSOS
-            FORAM MOVIDOS, PARA OS MESMOS SEREM EXCLUIDOS DA
-            FILA DE PROCESSOS.
+            FORAM MOVIDOS PARA A FILA DE PROCESSOS, PARA OS MESMOS
+            SEREM EXCLUIDOS DA LISTA DE PROCESSOS.
 
         */
 
@@ -195,20 +195,11 @@ void sjf(vector<Entrada>lista){
         lista.erase(lista.begin(), lista.begin() + qntInseridos);
 
         /*
-            NA PRIMEIRA EXECUCAO DE PROCESSO, A LISTA DE PRONTOS SERA ORDENADA
-            TANTO PELO TEMPO DE CHEGADA QUANTO PELO TEMPO DE CPU.
-
-            NAS PROXIMAS EXECUCOES, A LISTA DE PRONTOS SERA ORDENADA APENAS
+            DURANTE AS EXECUCOES, A LISTA DE PRONTOS SERA ORDENADA APENAS
             PELO TEMPO DE CPU DOS PROCESSOS EXISTENTES.
         */
 
-
-        if(firstExec){
-            sort(listaProntos.begin(), listaProntos.end(), ordenaTempoCpuChegada);
-            firstExec = false;
-        }
-        else
-            sort(listaProntos.begin(), listaProntos.end(), ordenaCpu);
+        sort(listaProntos.begin(), listaProntos.end(), ordenaCpu);
 
 
     /*

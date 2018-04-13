@@ -2,7 +2,7 @@
 1523133725 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\leitordearquivo.cpp
 	<iostream>
 
-1523570730 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\main.cpp
+1523577803 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\main.cpp
 	<iostream>
 	<fstream>
 	<vector>
@@ -17,7 +17,7 @@
 	<stdlib.h>
 	"Utilidades.h"
 
-1523154292 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\utilidades.h
+1523570869 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\utilidades.h
 
 1523156017 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\utilidades.cpp
 	<iostream>
