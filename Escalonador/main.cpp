@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const string PATH = "arquivo5.txt";
+const string PATH = "arquivo.txt";
 
 void showVector(vector<Entrada> entradas){
 
