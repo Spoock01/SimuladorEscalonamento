@@ -5,14 +5,14 @@
 #include <algorithm>
 #include "Utilidades.h"
 #include "Entrada.h"
-#define PRIMEIRO_ELEMENTO 0
+#define PRIMEIRO_PROCESSO 0
+#define QUANTUM 2
 
-
-//Compilar: g++ -o main.exe Entrada.h Utilidades.h Utllidades.cpp main.cpp
+//Compilar: g++ -o main.exe Entrada.h Utilidades.h Utilidades.cpp main.cpp
 
 using namespace std;
 
-const string PATH = "arquivo1.txt";
+const string PATH = "arquivo5.txt";
 
 void showVector(vector<Entrada> entradas){
 
@@ -152,10 +152,10 @@ void sjf(vector<Entrada>lista){
 
     vector<Entrada> listaProntos;
     int i, tempoDecorrido, somaEspera = 0, somaResposta = 0, somaRetorno = 0, qntInseridos, qntElementos = (int) lista.size();
-    bool finish = false, firstExec = true;
+    bool finish = false;
 
     // VERIFICANDO O TEMPO DE CHEGADA DO PRIMEIRO ELEMENTO
-    tempoDecorrido = lista[PRIMEIRO_ELEMENTO].getTempoChegada();
+    tempoDecorrido = lista[PRIMEIRO_PROCESSO].getTempoChegada();
 
     /*
         FUNCIONAMENTO DO ALGORITMO
@@ -169,7 +169,7 @@ void sjf(vector<Entrada>lista){
     */
     while(true){
         qntInseridos = 0;
-        finish = true;
+          finish = true;
 
         /*
             LAÇO RESPONSAVEL POR VERIFICAR SE OS PROCESSOS
@@ -201,7 +201,6 @@ void sjf(vector<Entrada>lista){
 
         sort(listaProntos.begin(), listaProntos.end(), ordenaCpu);
 
-
     /*
         LAÇO RESPONSAVEL POR VERIFICAR SE UM PROCESSO JA FOI EXECUTADO.
         CASO TENHA SIDO, IRA PROCURAR EM TODA A LISTA DE PRONTOS PARA
@@ -209,9 +208,7 @@ void sjf(vector<Entrada>lista){
         CASO NAO TENHA SIDO, O PROCESSO EH EXECUTADO, 'finish' EH
         MUDADO PARA 'FALSE' E O LAÇO EH ENCERRADO PARA VERIFICAR SE ALGUM
         PROCESSO CHEGOU ENQUANTO ESTE ESTAVA EM EXECUCAO.
-
     */
-
 
         for(i = 0; i < (int) listaProntos.size(); i++){
 
@@ -273,11 +270,84 @@ void sjf(vector<Entrada>lista){
 
 }
 
+void addProcessos(vector<Entrada> &lista, vector<Entrada> &listaProntos, int tempoDecorrido){
+
+     int qntInseridos = 0;
+
+     for(int i = 0; i < (int) lista.size(); i++){
+
+            if(lista.at(i).getTempoChegada() <= tempoDecorrido){
+                listaProntos.push_back(lista.at(i));
+                qntInseridos++;
+            }else
+                break;
+        }
+
+    lista.erase(lista.begin(), lista.begin() + qntInseridos);
+}
+
+void rr(vector<Entrada> lista){
+
+    vector<Entrada> listaProntos, listaExecutados;
+    int somaRetorno = 0, somaResposta = 0, somaEspera = 0,
+        tempoDecorrido, qntProcessos = lista.size();
+
+    tempoDecorrido = lista.front().getTempoChegada();
+
+    while(qntProcessos != (int) listaExecutados.size()){
+
+        addProcessos(lista, listaProntos, tempoDecorrido);
+
+        listaProntos.front().setTempoExecucao(tempoDecorrido);
+        int tempoRestante = listaProntos.front().getTempoCpu();
+
+        if(!listaProntos.front().getExec()){
+            listaProntos.front().setExec(true);
+            listaProntos.front().setPrimeiraEspera();
+            somaResposta += tempoDecorrido - listaProntos.front().getTempoChegada();
+        }else
+            listaProntos.front().setTempoEspera();
+
+
+        if(tempoRestante > QUANTUM){
+            listaProntos.front().setTempoCpu(tempoRestante - QUANTUM);
+            tempoDecorrido += QUANTUM;
+            addProcessos(lista, listaProntos, tempoDecorrido);
+            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+            listaProntos.push_back(listaProntos.front());
+        }else if(tempoRestante == QUANTUM){
+            somaRetorno += tempoDecorrido + QUANTUM - listaProntos.front().getTempoChegada();
+            tempoDecorrido+=QUANTUM;
+            addProcessos(lista, listaProntos, tempoDecorrido);
+            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+            listaExecutados.push_back(listaProntos.front());
+        }else{
+            addProcessos(lista, listaProntos, ++tempoDecorrido);
+            somaRetorno += tempoDecorrido - listaProntos.front().getTempoChegada();
+            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+            listaExecutados.push_back(listaProntos.front());
+        }
+
+        listaProntos.erase(listaProntos.begin());
+
+    }
+
+    for(int i = 0; i < qntProcessos; i++)
+        somaEspera += listaExecutados[i].getTempoEspera();
+
+    cout << "RR "  << (double) somaRetorno  / qntProcessos
+         << " "    << (double) somaResposta / qntProcessos
+         << " "    << (double) somaEspera   / qntProcessos << endl;
+
+
+}
+
 int main()
 {
     ifstream inFile;
     int t1, t2;
-    vector<Entrada> lista, lista2;
+    char process = 'A';
+    vector<Entrada> lista, lista2, lista3;
 
     // DEFININDO A PRECISAO PARA 1 CASA DECIMAL
     cout.precision(1);
@@ -291,7 +361,7 @@ int main()
 
     while(!inFile.eof()){
         inFile >> t1 >> t2;
-        lista.push_back(*new Entrada(t1,t2));
+        lista.push_back(*new Entrada(t1,t2, process++));
     }
 
     inFile.close();
@@ -300,7 +370,7 @@ int main()
         COM O TEMPO DE CHEGADA DOS PROCESSOS
     */
     sort(lista.begin(), lista.end(), ordenaChegada);
-    lista2 = lista;
+    lista3 = lista2 = lista;
 
     /*
         EXECUTANDO OS PROCESSOS USANDO FCFS
@@ -311,5 +381,6 @@ int main()
 
     sjf(lista2);
 
+    rr(lista3);
     return 0;
 }

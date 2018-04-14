@@ -2,7 +2,7 @@
 1523133725 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\leitordearquivo.cpp
 	<iostream>
 
-1523577803 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\main.cpp
+1523677985 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\main.cpp
 	<iostream>
 	<fstream>
 	<vector>
@@ -26,6 +26,6 @@
 
 1523115888 source:c:\users\joaov\documents\github\simuladorescalonamento\escalonador\entrada.cpp
 
-1523548575 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\entrada.h
+1523675413 c:\users\joaov\documents\github\simuladorescalonamento\escalonador\entrada.h
 	<iostream>
 
