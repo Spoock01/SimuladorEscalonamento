@@ -308,27 +308,29 @@ void rr(vector<Entrada> lista){
         }else
             listaProntos.front().setTempoEspera();
 
+        if(!listaProntos.empty()){
+            if(tempoRestante > QUANTUM){
+                listaProntos.front().setTempoCpu(tempoRestante - QUANTUM);
+                tempoDecorrido += QUANTUM;
+                addProcessos(lista, listaProntos, tempoDecorrido);
+                listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+                listaProntos.push_back(listaProntos.front());
+            }else if(tempoRestante == QUANTUM){
+                somaRetorno += tempoDecorrido + QUANTUM - listaProntos.front().getTempoChegada();
+                tempoDecorrido+=QUANTUM;
+                addProcessos(lista, listaProntos, tempoDecorrido);
+                listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+                listaExecutados.push_back(listaProntos.front());
+            }else if(tempoRestante == 1){
+                addProcessos(lista, listaProntos, ++tempoDecorrido);
+                somaRetorno += tempoDecorrido - listaProntos.front().getTempoChegada();
+                listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
+                listaExecutados.push_back(listaProntos.front());
+            }
 
-        if(tempoRestante > QUANTUM){
-            listaProntos.front().setTempoCpu(tempoRestante - QUANTUM);
-            tempoDecorrido += QUANTUM;
-            addProcessos(lista, listaProntos, tempoDecorrido);
-            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
-            listaProntos.push_back(listaProntos.front());
-        }else if(tempoRestante == QUANTUM){
-            somaRetorno += tempoDecorrido + QUANTUM - listaProntos.front().getTempoChegada();
-            tempoDecorrido+=QUANTUM;
-            addProcessos(lista, listaProntos, tempoDecorrido);
-            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
-            listaExecutados.push_back(listaProntos.front());
-        }else{
-            addProcessos(lista, listaProntos, ++tempoDecorrido);
-            somaRetorno += tempoDecorrido - listaProntos.front().getTempoChegada();
-            listaProntos.front().setUltimoTempoExecucao(tempoDecorrido);
-            listaExecutados.push_back(listaProntos.front());
-        }
-
-        listaProntos.erase(listaProntos.begin());
+            listaProntos.erase(listaProntos.begin());
+        }else
+            tempoDecorrido++;
 
     }
 
