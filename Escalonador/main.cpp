@@ -14,17 +14,6 @@ using namespace std;
 
 const string PATH = "arquivo.txt";
 
-void showVector(vector<Entrada> entradas){
-
-    for(int i = 0; i < (int) entradas.size(); i++){
-
-        cout << "Linha #" << i  << ": Tempo de Chegada: " << entradas.at(i).getTempoChegada()
-        << "  Tempo de CPU: " << entradas.at(i).getTempoCpu() << endl;
-
-    }
-
-}
-
 bool ordenaChegada (Entrada &e1, Entrada &e2){
     return e1.getTempoChegada() < e2.getTempoChegada();
 }
@@ -38,6 +27,13 @@ bool ordenaTempoCpuChegada(Entrada &e1, Entrada &e2){
 }
 
 void fcfs(vector<Entrada> lista){
+
+    /*
+        ORDENANDO A LISTA DE PROCESSOSS DE ACORDO
+        COM O TEMPO DE CHEGADA DOS PROCESSOS
+    */
+
+    sort(lista.begin(), lista.end(), ordenaChegada);
 
     int i,somaEspera = 0, somaRetorno = 0, somaResposta = 0, tempoDecorrido = 0;
     double resultados[3];
@@ -85,7 +81,6 @@ void fcfs(vector<Entrada> lista){
 
     for (i = 0; i < (int) lista.size(); i++)
         somaRetorno = somaRetorno + lista[i].getTempoRetorno();
-
 
 
     /*
@@ -149,6 +144,14 @@ void fcfs(vector<Entrada> lista){
 }
 
 void sjf(vector<Entrada>lista){
+
+    /*
+        ORDENANDO A LISTA DE PROCESSOSS DE ACORDO
+        COM O TEMPO DE CHEGADA DOS PROCESSOS E
+        TAMBEM COM O TEMPO DE CPU.
+    */
+
+    sort(lista2.begin(), lista2.end(), ordenaTempoCpuChegada);
 
     vector<Entrada> listaProntos;
     int i, tempoDecorrido, somaEspera = 0, somaResposta = 0, somaRetorno = 0, qntInseridos, qntElementos = (int) lista.size();
@@ -288,12 +291,34 @@ void addProcessos(vector<Entrada> &lista, vector<Entrada> &listaProntos, int tem
 
 void rr(vector<Entrada> lista){
 
+    /*
+        ALGORITMO RR COM QUANTUM 2
+
+        ESSE ALGORITMO FOI FEITO PARA FUNCIONAR
+        APENAS COM QUANTUM IGUAL A 2, SENDO ASSIM
+        A MUDANCA DESSE VALOR PODE ACARRETAR EM
+        EXECUCOES INDESEJADAS.
+
+    */
+
     vector<Entrada> listaProntos, listaExecutados;
     int somaRetorno = 0, somaResposta = 0, somaEspera = 0,
         tempoDecorrido, qntProcessos = lista.size();
 
-    tempoDecorrido = lista.front().getTempoChegada();
+    /*
 
+        TEMPO DECORRIDO COMEÇA A CONTAR A PARTIR DO TEMPO DE
+        CHEGADA DO PRIMEIRO PROCESSO, APÓS A ORDENACAO TER SIDO
+        CONCLUIDA.
+
+        O LAÇO DE EXECUCAO DO ALGORITMO RR SERA ENCERRADO QUANDO
+        A LISTA DE PROCESSOS EXECUTADOS TIVER O MESMO TAMANHO
+        DA LISTA DE PROCESSOS QUE CHEGOU.
+
+    */
+
+
+    tempoDecorrido = lista.front().getTempoChegada();
     while(qntProcessos != (int) listaExecutados.size()){
 
         addProcessos(lista, listaProntos, tempoDecorrido);
@@ -301,12 +326,62 @@ void rr(vector<Entrada> lista){
         listaProntos.front().setTempoExecucao(tempoDecorrido);
         int tempoRestante = listaProntos.front().getTempoCpu();
 
+
+        /*
+            PARA CALCULAR O TEMPO DE ESPERA DOS PROCESSOS FOI NECESSARIO
+            DIVIR A EXECUCAO EM DUAS PARTES. PRIMEIRO EH FEITA UMA COMPA-
+            RACAO PARA VERIFICAR SE O PROCESSO JA FOI EXECUTADO ALGUMA VEZ.
+
+            CASO O PROCESSO AINDA NAO TENHA SIDO EXECUTADO, O TEMPO DE ESPERA
+            EH CALCULADO BASEADO NO SEU TEMPO DE CHEGADA JUNTAMENTE COM O
+            TEMPO DECORRIDO.
+
+            CASO O PROCESSO JA TENHA SIDO EXECUTADO ALGUMA VEZ, O TEMPO DE ESPERA
+            EH CALCULADO BASEADO NO TEMPO DECORRIDO JUNTAMENTE COM O TEMPO ONDE
+            O PROCESSO TERMINOU A EXECUCAO PELA ULTIMA VEZ (DE ACORDO COM O QUANTUM).
+
+        */
+
+
         if(!listaProntos.front().getExec()){
             listaProntos.front().setExec(true);
             listaProntos.front().setPrimeiraEspera();
             somaResposta += tempoDecorrido - listaProntos.front().getTempoChegada();
         }else
             listaProntos.front().setTempoEspera();
+
+
+
+        /*
+            O RESTANTE DO ALGORITMO SEGUE A SEGUINTE IDEIA:
+
+            UMA VERIFICACAO EH FEITA PARA SABER SE A LISTA DE PROCESSOS
+            PRONTOS ESTA VAZIA.
+
+            CASO ESTEJA VAZIA, EXISTEM PROCESSOS QUE AINDA NÃO FORAM
+            PASSADOS PARA LISTA DE PRONTOS, PORTANTO O TEMPO DECORRIDO
+            EH INCREMENTADO.
+
+            CASO NAO ESTEJA VAZIA E O TEMPO RESTANTE DO PROCESSO SEJA
+            MAIOR QUE O QUANTUM, O TEMPO DECORRIDO EH INCREMENTADO PELO
+            VALOR DO QUANTUM, OS NOVOS PROCESSOS SAO ADICIONADOS AO FIM
+            DA FILA DE PRONTOS. POR FIM, O PROCESSO ATUAL EH COLOCADO
+            NO FINAL DA FILA DE PRONTOS.
+
+            CASO NAO ESTEJA VAZIA E O TEMPO RESTANTE EH IGUAL AO QUANTUM,
+            O TEMPO DE RETORNO EH CALCULADO, O TEMPO DECORRIDO EH INCRE-
+            MENTADO PELO VALOR DO QUANTUM, NOVOS PROCESSOS SAO ADICIONADOS
+            AO FIM DA FILA. E O PROCESSO EXECUTADO EH COLOCADO NA FILA
+            DE PROCESSOS EXECUTADOS(FINALIZADOS).
+
+            CASO NAO ESTEJA VAZIA E O TEMPO RESTANTE EH IGUAL A 1, O TEMPO
+            DECORRIDO EH INCREMENTADO EM 1, O TEMPO DE RETORNO EH CALCULADO,
+            NOVOS PROCESSOS SAO ADICIONADOS AO FIM DA FILA E O PROCESSO ATUAL
+            EH COLOCADO NA FILA DE EXECUTADOS(FINALIZADOS).
+
+        */
+
+
 
         if(!listaProntos.empty()){
             if(tempoRestante > QUANTUM){
@@ -334,8 +409,24 @@ void rr(vector<Entrada> lista){
 
     }
 
+    /*
+
+        CALCULANDO O TEMPO DE ESPERA TOTAL DE TODOS OS PROCESSOS.
+        OS DEMAIS TEMPOS JA FORAM CALCULADOS.
+
+    */
+
     for(int i = 0; i < qntProcessos; i++)
         somaEspera += listaExecutados[i].getTempoEspera();
+
+
+    /*
+        EXIBINDO TEMPOS MEDIOS DE RETORNO, RESPOSTA E ESPERA NO SEGUINTE FORMATO:
+
+        SJF TEMPO_RETORNO_MEDIO TEMPO_RESPOSTA_MEDIO TEMPO_ESPERA_MEDIO
+
+        TODOS OS TEMPOS COM 1 CASA DECIMAL
+    */
 
     cout << "RR "  << (double) somaRetorno  / qntProcessos
          << " "    << (double) somaResposta / qntProcessos
@@ -367,11 +458,8 @@ int main()
     }
 
     inFile.close();
-    /*
-        ORDENANDO A LISTA DE PROCESSOSS DE ACORDO
-        COM O TEMPO DE CHEGADA DOS PROCESSOS
-    */
-    sort(lista.begin(), lista.end(), ordenaChegada);
+
+
     lista3 = lista2 = lista;
 
     /*
@@ -379,9 +467,15 @@ int main()
     */
     fcfs(lista);
 
-    sort(lista2.begin(), lista2.end(), ordenaTempoCpuChegada);
+    /*
+        EXECUTANDO OS PROCESSOS USANDO SJF
+    */
 
     sjf(lista2);
+
+    /*
+        EXECUTANDO OS PROCESSOS USANDO RR COM QUANTUM 2
+    */
 
     rr(lista3);
     return 0;
