@@ -151,7 +151,7 @@ void sjf(vector<Entrada>lista){
         TAMBEM COM O TEMPO DE CPU.
     */
 
-    sort(lista2.begin(), lista2.end(), ordenaTempoCpuChegada);
+    sort(lista.begin(), lista.end(), ordenaTempoCpuChegada);
 
     vector<Entrada> listaProntos;
     int i, tempoDecorrido, somaEspera = 0, somaResposta = 0, somaRetorno = 0, qntInseridos, qntElementos = (int) lista.size();
@@ -471,12 +471,13 @@ int main()
         EXECUTANDO OS PROCESSOS USANDO SJF
     */
 
+    sort(lista2.begin(), lista2.end(), ordenaChegada);
     sjf(lista2);
 
     /*
         EXECUTANDO OS PROCESSOS USANDO RR COM QUANTUM 2
     */
-
+    sort(lista3.begin(),lista3.end(), ordenaChegada);
     rr(lista3);
     return 0;
 }
